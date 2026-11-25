@@ -20,8 +20,8 @@ def test_ajouter_et_lire(conn):
 def test_etudiant_inconnu(conn):
     assert get_student(conn, 9999) is None
 
-
+# Bad code
 def test_moyenne(conn):
     add_student(conn, "Amel", 10)
     add_student(conn, "Karim", 14)
-    assert average_grade(conn) == 12.0
+    assert average_grade(conn) == 13.0
