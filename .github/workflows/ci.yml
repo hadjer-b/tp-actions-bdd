@@ -5,13 +5,16 @@ on: [push, pull_request]
 jobs:
   python:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.12"]
     steps:
       - uses: actions/checkout@v4
       - name: Préparer la base de données
         run: bash db/setup.sh
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
       - name: Installer les dépendances
         run: pip install -r requirements.txt
         working-directory: python-app
@@ -65,3 +68,22 @@ jobs:
       - name: Lancer les tests
         run: vendor/bin/phpunit tests
         working-directory: php-app
+
+  build:
+    needs: [python, node, java, php]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build
+        run: echo "Build terminé avec succès"
+
+  deploy:
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+    steps:
+      - name: Déploiement
+        run: |
+          echo "Déploiement en cours"
+          test -n "$TOKEN" && echo "Token présent"
